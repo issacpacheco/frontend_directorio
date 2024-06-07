@@ -1,80 +1,43 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ApiService } from '../api.service';
 
 @Component({
   selector: 'app-contacto-form',
-  standalone: true,
-  imports: [],
   templateUrl: './contacto-form.component.html',
-  styleUrls: ['./contacto-form.component.css'],
+  styleUrls: ['./contacto-form.component.css']
 })
-export class ContactoFormComponent {
+export class ContactoFormComponent implements OnInit {
   contactForm: FormGroup;
+  productoId: number;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private apiService: ApiService
+  ) {
     this.contactForm = this.fb.group({
-      name: ['', Validators.required],
-      phones: this.fb.array([this.createPhone()]),
-      emails: this.fb.array([this.createEmail()]),
-      addresses: this.fb.array([this.createAddress()]),
+      nombre: ['', Validators.required],
+      descripcion: ['', Validators.required],
+      precio: ['', Validators.required],
+      imagen: ['', Validators.required]
     });
   }
 
-  createPhone(): FormGroup {
-    return this.fb.group({
-      phone_number: ['', Validators.required],
+  ngOnInit(): void {
+    this.productoId = this.route.snapshot.params['id'];
+    this.apiService.getProducto(this.productoId).subscribe((data) => {
+      this.contactForm.patchValue(data);
     });
   }
 
-  createEmail(): FormGroup {
-    return this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-    });
-  }
-
-  createAddress(): FormGroup {
-    return this.fb.group({
-      address: ['', Validators.required],
-      city: ['', Validators.required],
-      state: ['', Validators.required],
-      zip_code: ['', Validators.required],
-    });
-  }
-
-  get phones(): FormArray {
-    return this.contactForm.get('phones') as FormArray;
-  }
-
-  addPhone(): void {
-    this.phones.push(this.createPhone());
-  }
-
-  removePhone(index: number): void {
-    this.phones.removeAt(index);
-  }
-
-  // Similarly for emails and addresses
-  get emails(): FormArray {
-    return this.contactForm.get('emails') as FormArray;
-  }
-
-  addEmail(): void {
-    this.emails.push(this.createEmail());
-  }
-
-  removeEmail(index: number): void {
-    this.emails.removeAt(index);
-  }
-
-  get addresses(): FormArray {
-    return this.contactForm.get('addresses') as FormArray;
-  }
-
-  addAddress(): void {
-    this.addresses.push(this.createAddress());
-  }
-
-  removeAddress(index: number): void {
-    this.addresses.removeAt(index);
+  onSubmit(): void {
+    if (this.contactForm.valid) {
+      this.apiService.updateProducto(this.productoId, this.contactForm.value).subscribe(() => {
+        this.router.navigate(['/']);
+      });
+    }
   }
 }

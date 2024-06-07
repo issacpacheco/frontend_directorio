@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../service/api.service';
-import { Contacto } from '../interfaces/lista.interfaces';
+import { Productos } from '../interfaces/lista.interfaces';
 
 @Component({
   selector: 'app-contacto-lista',
@@ -10,20 +10,28 @@ import { Contacto } from '../interfaces/lista.interfaces';
   styleUrl: './contacto-lista.component.css',
 })
 export class ContactoListaComponent implements OnInit {
-  Contacto: Contacto[] = [];
+  Productos: Productos[] = [];
   constructor(private apiService: ApiService) {}
   ngOnInit(): void {
     this.getData();
   }
   getData() {
-    this.apiService.getData().subscribe({
+    this.apiService.getProductos().subscribe({
       next: (data) => {
-        this.Contacto = data;
-        console.log(this.Contacto);
+        this.Productos = data;
+        console.log(this.Productos);
       },
       error: (err) => {
         console.log(err);
       },
     });
+  }
+
+  editarProducto(id: number): void {
+    this.Productos.navigate['/edit-contact', id];
+  }
+
+  eliminarProducto(id: number): void {
+    // Lógica para eliminar el producto
   }
 }
