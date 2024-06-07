@@ -1,0 +1,8 @@
+export interface Contacto{
+    id: number;
+    nombre: string;
+    descripcion: string;
+    imagen: string;
+    precio: number;
+
+}
